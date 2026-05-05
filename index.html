@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>釘炮運送路線規劃系統</title>
+<title>子彈運送路線規劃系統</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: "Microsoft JhengHei", "PingFang HK", Arial, sans-serif; background: #f0f2f5; color: #222; font-size: 14px; }
@@ -169,10 +169,14 @@
   <div style="display:flex;align-items:center;gap:14px">
     <span style="font-size:36px;line-height:1">📦</span>
     <div>
-      <div style="font-size:22px;font-weight:800;letter-spacing:1.5px;line-height:1.2">釘炮運送路線規劃系統</div>
+      <div style="font-size:22px;font-weight:800;letter-spacing:1.5px;line-height:1.2">子彈運送路線規劃系統</div>
     </div>
   </div>
-  <div style="font-size:11px;opacity:.7;text-align:right">香港土木工程署礦務部<br>爆炸品運送許可證輔助工具</div>
+  <div style="text-align:right">
+    <button onclick="openGHPanel()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;padding:7px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;letter-spacing:.5px;margin-bottom:6px">🔑 GitHub 設定</button>
+    <button onclick="saveJsonToGitHub()" style="background:#27ae60;border:none;color:#fff;padding:7px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;letter-spacing:.5px;margin-left:6px;margin-bottom:6px">☁️ 同步至 GitHub</button>
+    <div style="font-size:11px;opacity:.7;margin-top:2px">香港土木工程署礦務部<br>爆炸品運送許可證輔助工具</div>
+  </div>
 </header>
 
 <div class="main-layout">
@@ -209,7 +213,7 @@
     <div style="padding:0 14px">
       <button class="btn-add-stop" onclick="addStop()">＋ 新增中途站</button>
       <div class="total-bar">
-        <span>本車合計釘炮</span>
+        <span>本車合計子彈</span>
         <strong id="total-qty">0 枚</strong>
       </div>
     </div>
@@ -252,7 +256,7 @@
         <button class="btn btn-success" style="font-size:11px;padding:4px 10px" onclick="exportUpdatedHTML()">💾 匯出更新版本</button>
       </div>
       <div style="background:#fff8e1;border:1px solid #f5c518;border-radius:6px;padding:7px 12px;margin:6px 8px;font-size:11px;color:#7a5200;line-height:1.6">
-        <strong>⚠️ 修改路線後：</strong>按「💾 匯出更新版本」，將下載的 <strong>index.html</strong> 上載至 GitHub Repository 覆蓋原有檔案，修改才會對所有人生效。
+        <strong>⚠️ 修改路線後：</strong>按「💾 匯出更新版本」，將下載的檔案<strong>按「☁️ 同步至 GitHub」即時更新</strong>，修改才會對所有人生效。
       </div>
       <input type="text" class="db-search" id="db-search" placeholder="🔍 搜尋路線號、起點、終點或街道名稱…" oninput="filterDB()">
       <div id="db-container"></div>
@@ -267,11 +271,10 @@
           <button class="btn btn-success" style="font-size:12px;padding:5px 12px" onclick="exportUpdatedHTML()">💾 匯出更新版本</button>
         </div>
       </div>
+      
       <div style="background:#fff8e1;border:1px solid #f5c518;border-radius:6px;padding:8px 12px;margin:8px 0;font-size:11.5px;color:#7a5200;line-height:1.6">
-        <strong>⚠️ 重要提示：</strong>修改牌照資料後，必須按「💾 匯出更新版本」下載新版本，
-        然後將檔案改名為 <strong>index.html</strong> 並上載至 GitHub Repository 覆蓋原有檔案，
-        新資料才會對所有使用者生效。<br>
-        <span style="color:#999;font-size:10.5px">只在本機修改而不上載，其他同事將無法看到最新資料。</span>
+        <strong>⚠️ 重要提示：</strong>修改牌照資料後，按頂部「☁️ 同步至 GitHub」即時更新雲端資料庫。<br>
+        <span style="color:#999;font-size:10.5px">只在本機修改而不同步，其他同事將看不到最新資料。</span>
       </div>
       <div id="centres-table-container"></div>
     </div>
@@ -304,7 +307,7 @@ const CENTRES = [
 ];
 
 // All 67 routes (R001-R067), original 上水→百周年 R057 已移除，現有 R057 為上水→油塘
-const ROUTES = [
+let ROUTES = [
   // ── 青衣出發 ──
   {id:"R001",from:"青衣物料運作中心",to:"荃灣運作中心",      streets:"青衣路>青衣南橋>葵青路>荃灣路>大涌道>海盛路>柴灣角街"},
   {id:"R002",from:"青衣物料運作中心",to:"百周年運作中心",      streets:"青衣路>青沙公路>昂船洲大橋>青沙公路>西九龍公路>佐敦道>渡華路"},
@@ -491,7 +494,7 @@ function renderStops() {
         + `<option value="">— 選擇運作中心 —</option>` + opts + `</select>`;
     }
     const qtyHtml = idx===0 ? `<div style="width:64px"></div>`
-      : `<input type="number" class="stop-qty" min="0" step="20" value="${stop.qty||0}" onchange="updateStop(${idx},'qty',+this.value)" title="釘炮數量"><div class="stop-qty-label">枚</div>`;
+      : `<input type="number" class="stop-qty" min="0" step="20" value="${stop.qty||0}" onchange="updateStop(${idx},'qty',+this.value)" title="子彈數量"><div class="stop-qty-label">枚</div>`;
     const dragHandle = idx===0 ? "" : `<span class="stop-drag">☰</span>`;
     const delBtn = idx===0 ? "" : `<span class="stop-delete" onclick="deleteStop(${idx})">×</span>`;
     row.innerHTML = indexDiv + selectHtml + qtyHtml + dragHandle + delBtn;
@@ -571,7 +574,7 @@ function generateRoute() {
   if(dupes.length>0) warnings.push({icon:"⚠️",text:`有重複運作中心：${[...new Set(dupes)].join("、")}`,sub:"建議合併同一中心派送"});
 
   const zeroQty = destStops.filter(s=>s.centre && +s.qty===0);
-  if(zeroQty.length>0) warnings.push({icon:"⚠️",text:`${zeroQty.map(s=>s.centre.replace("運作中心","")).join("、")} 的釘炮數量為零`,sub:"請確認數量"});
+  if(zeroQty.length>0) warnings.push({icon:"⚠️",text:`${zeroQty.map(s=>s.centre.replace("運作中心","")).join("、")} 的子彈數量為零`,sub:"請確認數量"});
 
   let noTemplate = [];
   for(let i=0;i<stops.length-1;i++) {
@@ -673,7 +676,7 @@ function generateRoute() {
           <th style="padding:5px 8px;text-align:left;border-bottom:1px solid #dde;color:#1a3a5c">起點</th>
           <th style="padding:5px 8px;text-align:left;border-bottom:1px solid #dde;color:#1a3a5c">目的地</th>
           <th style="padding:5px 8px;text-align:left;border-bottom:1px solid #dde;color:#1a3a5c">路線模板</th>
-          <th style="padding:5px 8px;text-align:right;border-bottom:1px solid #dde;color:#1a3a5c">釘炮數量</th>
+          <th style="padding:5px 8px;text-align:right;border-bottom:1px solid #dde;color:#1a3a5c">子彈數量</th>
         </tr>
       </thead>
       <tbody>
@@ -795,7 +798,7 @@ function printPlan() {
     @media print { @page { size: A4 portrait; margin: 15mm; } }
   </style>`;
   let html = "";
-  html += `<h2>📦 釘炮運送計劃書</h2>`;
+  html += `<h2>📦 子彈運送計劃書</h2>`;
   html += `<div style="font-size:12px;margin-bottom:14px">計劃運送日期：<strong>${date}</strong> ｜ 車輛數目：<strong>${vehicles.length}</strong> 輛</div>`;
 
   vehicles.forEach((v, vi) => {
@@ -813,7 +816,7 @@ function printPlan() {
 
     html += `<div class="vehicle-block">`;
     html += `<h3>🚛 ${plate}</h3>`;
-    html += `<table><tr><th>#</th><th>運作中心</th><th>釘炮數量</th></tr>`;
+    html += `<table><tr><th>#</th><th>運作中心</th><th>子彈數量</th></tr>`;
     validStops.forEach((s,si)=>{
       if(si===0) html+=`<tr><td>起點</td><td>${s.centre}</td><td>—</td></tr>`;
       else html+=`<tr><td>${si}</td><td>${s.centre}</td><td>${s.qty||0} 枚</td></tr>`;
@@ -891,7 +894,36 @@ function printPlan() {
 
   const pw = window.open("","_blank","width=900,height=700");
   if(!pw) { showToast("瀏覽器封鎖彈出視窗，請允許後再試","error"); return; }
-  pw.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>釘炮運送計劃書</title>${printStyles}</head><body>${html}</body></html>`);
+  pw.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>子彈運送計劃書</title>${printStyles}</head><body>${html}
+<!-- GITHUB SETTINGS MODAL -->
+<div id="gh-panel" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:12px;padding:28px 30px;width:430px;max-width:95vw;box-shadow:0 8px 40px rgba(0,0,0,.25)">
+    <h2 style="font-size:16px;color:#1a3a5c;margin-bottom:18px;border-bottom:2px solid #1a3a5c;padding-bottom:8px">🔑 GitHub 資料庫設定</h2>
+    <div style="background:#fff8e1;border:1px solid #f5c518;border-radius:6px;padding:10px 14px;font-size:11.5px;color:#7a5200;margin-bottom:16px;line-height:1.7">
+      <strong>設定說明：</strong><br>
+      1. <strong>用戶名</strong>：你的 GitHub 帳號<br>
+      2. <strong>Repository</strong>：例如 <code>cartridge-planner</code><br>
+      3. <strong>Token</strong>：GitHub → Settings → Developer settings → Fine-grained tokens，權限選 <strong>Contents: Read and Write</strong><br>
+      4. <strong>資料目錄</strong>：預設 <code>data</code>（存放 routes.json 及 licences.json）<br>
+      <span style="color:#c0392b;font-weight:700">⚠️ Token 只存於本機 sessionStorage，關閉分頁後自動清除。</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div><label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:3px">GitHub 用戶名（Owner）</label>
+        <input id="gh-owner" type="text" placeholder="例：ck-dispatch" style="width:100%;padding:7px 10px;border:1px solid #c8d0da;border-radius:5px;font-size:13px"></div>
+      <div><label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:3px">Repository 名稱</label>
+        <input id="gh-repo" type="text" placeholder="例：cartridge-planner" style="width:100%;padding:7px 10px;border:1px solid #c8d0da;border-radius:5px;font-size:13px"></div>
+      <div><label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:3px">Personal Access Token</label>
+        <input id="gh-token" type="password" placeholder="github_pat_xxxx 或 ghp_xxxx" style="width:100%;padding:7px 10px;border:1px solid #c8d0da;border-radius:5px;font-size:13px;font-family:monospace"></div>
+      <div><label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:3px">資料目錄路徑（預設 data）</label>
+        <input id="gh-path" type="text" placeholder="data" style="width:100%;padding:7px 10px;border:1px solid #c8d0da;border-radius:5px;font-size:13px"></div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
+      <button onclick="closeGHPanel()" style="padding:8px 18px;border-radius:6px;border:1px solid #ccc;background:#f5f5f5;cursor:pointer;font-size:13px">取消</button>
+      <button onclick="saveGHSettings()" style="padding:8px 22px;border-radius:6px;border:none;background:#27ae60;color:#fff;cursor:pointer;font-size:13px;font-weight:700">✅ 連接並載入</button>
+    </div>
+  </div>
+</div>
+</body></html>`);
   pw.document.write(`<script>window.onload=function(){window.print()}<\/script>`);
   pw.document.close();
 }
@@ -933,15 +965,18 @@ function buildDB(filter="") {
       </div>
       <div class="db-group-body collapsed">
         <table class="db-table">
-          <thead><tr><th>編號</th><th>終點</th><th>街道名稱串</th><th>複製</th></tr></thead>
+          <thead><tr><th>編號</th><th>終點</th><th>街道名稱串</th><th style="text-align:center;width:88px">操作</th></tr></thead>
           <tbody>${routes.map(r=>`
             <tr id="row-${r.id}">
               <td><span class="route-id">${r.id}</span></td>
               <td><span class="route-dest">${r.to.replace("運作中心","")}</span></td>
               <td><span class="route-streets" id="streets-${r.id}">${r.streets}</span></td>
-              <td style="white-space:nowrap">
-                <button class="btn-copy-small" onclick="copyRoute('${r.id}')">複製</button>
-                <button class="btn-copy-small" style="background:#e8f0f8;color:#1a3a5c;border:1px solid #1a3a5c;margin-left:3px" onclick="editRoute('${r.id}')">✏️</button>
+              <td style="width:88px;text-align:center;vertical-align:middle">
+                <div style="display:flex;gap:4px;justify-content:center">
+                  <button class="btn-copy-small" onclick="copyRoute('${r.id}')">複製</button>
+                  <button class="btn-copy-small" style="background:#e8f0f8;color:#1a3a5c;border:1px solid #1a3a5c" onclick="editRoute('${r.id}')">✏️</button>
+                </div>
+              </td>>✏️</button>
               </td>
             </tr>`).join("")}
           </tbody>
@@ -976,7 +1011,7 @@ function switchRightTab(tab) {
 // ============================================================
 // LICENCE DATA
 // ============================================================
-const CENTRE_LICENCES = [
+let CENTRE_LICENCES = [
   // ── 九龍區（由近至遠）──
   { id:"TW",  name:"荃灣運作中心",    licence:"", expiry:"", contact:"", phone:"", remark:"", region:"九龍／荃灣" },
   { id:"CEN", name:"百周年運作中心",  licence:"", expiry:"", contact:"", phone:"", remark:"", region:"九龍" },
@@ -993,7 +1028,7 @@ const CENTRE_LICENCES = [
 ];
 
 // Inject saved data if available (burned-in from previous export)
-const SAVED_LICENCES = [{"id":"TW","name":"荃灣運作中心","licence":"","expiry":"","contact":"","phone":"","remark":"","region":"九龍／荃灣"},{"id":"CEN","name":"百周年運作中心","licence":"","expiry":"","contact":"","phone":"","remark":"","region":"九龍"},{"id":"TWS","name":"慈雲山運作中心","licence":"","expiry":"","contact":"","phone":"","remark":"","region":"九龍"},{"id":"WTS","name":"黃大仙運作中心","licence":"","expiry":"","contact":"","phone":"","remark":"","region":"九龍"},{"id":"YT","name":"油塘運作中心","licence":"","expiry":"","contact":"","phone":"","remark":"","region":"九龍"},{"id":"TM","name":"屯門運作中心","licence":"","expiry":"","contact":"","phone":"","remark":"","region":"新界"},{"id":"YL","name":"元朗運作中心","licence":"","expiry":"","contact":"","phone":"","remark":"","region":"新界"},{"id":"ST","name":"沙田運作中心","licence":"","expiry":"","contact":"","phone":"","remark":"","region":"新界"},{"id":"SS","name":"上水運作中心","licence":"","expiry":"","contact":"","phone":"","remark":"","region":"新界"},{"id":"LT","name":"大嶼山運作中心","licence":"","expiry":"","contact":"","phone":"","remark":"","region":"大嶼山"}];
+const SAVED_LICENCES = null;
 if(Array.isArray(SAVED_LICENCES)) {
   SAVED_LICENCES.forEach(saved => {
     const c = CENTRE_LICENCES.find(x=>x.id===saved.id);
@@ -1083,7 +1118,7 @@ function saveCentre(id) {
   c.remark  = document.getElementById(`f-remark-${id}`).value.trim();
   renderCentresTable();
   // Update header status badge
-  showToast(`${c.name} 資料已更新`);
+  showToast(c.name+' 資料已更新 — 按頂部「☁️ 同步至 GitHub」儲存至雲端','success',5000);
 }
 
 // ── Validate licence when selecting destination in trip planner ──
@@ -1098,36 +1133,123 @@ function getLicenceWarnings(centreName) {
 // ============================================================
 // EXPORT: burn data into HTML and download
 // ============================================================
-function exportUpdatedHTML() {
-  const savedLicences = JSON.stringify(CENTRE_LICENCES);
-  const savedRoutes   = JSON.stringify(ROUTES.map(r=>({id:r.id,from:r.from,to:r.to,streets:r.streets})));
+function exportUpdatedHTML() { saveJsonToGitHub(); }
 
-  function doExport(src) {
-    // Inject licences
-    let out = src.replace(/const SAVED_LICENCES\s*=\s*(?:null|\[.*?\]);/s, `const SAVED_LICENCES = ${savedLicences};`);
-    // Inject routes — replace the entire ROUTES array
-    out = out.replace(/const ROUTES\s*=\s*\[[\s\S]*?\];/, ()=>{
-      const lines = ['const ROUTES = ['];
-      let lastFrom = null;
-      ROUTES.forEach(r=>{
-        if(r.from!==lastFrom){ if(lastFrom!==null) lines.push(''); lines.push(`  // ── ${r.from.replace('物料運作中心','').replace('運作中心','')}出發 ──`); lastFrom=r.from; }
-        lines.push(`  {id:"${r.id}",from:"${r.from}",to:"${r.to}",      streets:"${r.streets}"},`);
-      });
-      lines.push('];');
-      return lines.join('\n');
-    });
-    const blob = new Blob([out], {type:'text/html;charset=utf-8'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'cartridge-route-planner.html';
-    a.click();
-    showToast('✅ 已匯出！請將檔案改名為 index.html，上載至 GitHub Repository 覆蓋原有檔案，約 1–2 分鐘後所有使用者即可看到最新版本。', 'success', 8000);
+// ============================================================
+// ROUTE EDITING
+// ============================================================
+function editRoute(id) {
+  const r = ROUTES.find(x => x.id === id); if (!r) return;
+  const cell = document.getElementById("streets-" + id);
+  const row  = document.getElementById("row-"    + id);
+  if (!cell || !row) return;
+  cell.innerHTML = "<textarea id=\"edit-" + id + "\" style=\"width:100%;min-height:52px;font-size:11px;font-family:monospace;padding:4px;border:1px solid #1a3a5c;border-radius:3px;resize:vertical\">" + r.streets + "</textarea>";
+  row.cells[3].innerHTML =
+    "<div style=\"display:flex;gap:4px;justify-content:center\">"
+    + "<button class=\"btn-copy-small\" style=\"background:#27ae60;color:#fff\" onclick=\"saveRoute('" + id + "')\">✅ 儲存</button>"
+    + "<button class=\"btn-copy-small\" style=\"background:#e8e8e8;color:#333\" onclick=\"cancelRouteEdit('" + id + "')\" >✕</button>"
+    + "</div>";
+}
+
+function _routeRowButtons(id) {
+  return "<div style=\"display:flex;gap:4px;justify-content:center\">"
+    + "<button class=\"btn-copy-small\" onclick=\"copyRoute('" + id + "')\">複製</button>"
+    + "<button class=\"btn-copy-small\" style=\"background:#e8f0f8;color:#1a3a5c;border:1px solid #1a3a5c\" onclick=\"editRoute('" + id + "')\">✏️</button>"
+    + "</div>";
+}
+
+function saveRoute(id) {
+  const r = ROUTES.find(x => x.id === id); if (!r) return;
+  const ta = document.getElementById("edit-" + id); if (!ta) return;
+  const s = ta.value.trim().replace(/\s*>\s*/g, ">");
+  if (!s || s.includes(">>")) { showToast("路線格式有誤：街道之間請用 > 分隔", "error"); return; }
+  r.streets = s;
+  const cell = document.getElementById("streets-" + id);
+  const row  = document.getElementById("row-"    + id);
+  if (cell) cell.innerHTML = "<span class=\"route-streets\" id=\"streets-" + id + "\">" + r.streets + "</span>";
+  if (row)  row.cells[3].innerHTML = _routeRowButtons(id);
+  showToast(id + " 路線已更新 — 按「☁️ 同步至 GitHub」儲存至雲端", "success", 5000);
+}
+
+function cancelRouteEdit(id) {
+  const r = ROUTES.find(x => x.id === id); if (!r) return;
+  const cell = document.getElementById("streets-" + id);
+  const row  = document.getElementById("row-"    + id);
+  if (cell) cell.innerHTML = "<span class=\"route-streets\" id=\"streets-" + id + "\">" + r.streets + "</span>";
+  if (row)  row.cells[3].innerHTML = _routeRowButtons(id);
+}
+
+// ============================================================
+// GITHUB API
+// ============================================================
+let GH = { owner:"", repo:"", token:"", dataPath:"data" };
+function loadGHSettings() {
+  try { const s = sessionStorage.getItem("gh_settings"); if (s) Object.assign(GH, JSON.parse(s)); } catch(e) {}
+}
+function saveGHSettings() {
+  GH.owner    = document.getElementById("gh-owner").value.trim();
+  GH.repo     = document.getElementById("gh-repo").value.trim();
+  GH.token    = document.getElementById("gh-token").value.trim();
+  GH.dataPath = document.getElementById("gh-path").value.trim() || "data";
+  if (!GH.owner || !GH.repo || !GH.token) { showToast("請填寫所有 GitHub 設定欄位", "error", 3000); return; }
+  sessionStorage.setItem("gh_settings", JSON.stringify(GH));
+  closeGHPanel();
+  showToast("✅ 已連接 " + GH.owner + "/" + GH.repo + "，正在載入最新資料…", "success", 3000);
+  setTimeout(loadDataFromGH, 400);
+}
+function openGHPanel() {
+  loadGHSettings();
+  document.getElementById("gh-owner").value = GH.owner;
+  document.getElementById("gh-repo").value  = GH.repo;
+  document.getElementById("gh-token").value = GH.token;
+  document.getElementById("gh-path").value  = GH.dataPath;
+  document.getElementById("gh-panel").style.display = "flex";
+}
+function closeGHPanel() { document.getElementById("gh-panel").style.display = "none"; }
+
+function ghGetFileSHA(filename) {
+  const url = "https://api.github.com/repos/" + GH.owner + "/" + GH.repo + "/contents/" + GH.dataPath + "/" + filename;
+  return fetch(url, { headers: { "Authorization": "token " + GH.token } })
+    .then(res => res.ok ? res.json().then(d => d.sha || null) : null)
+    .catch(() => null);
+}
+function ghWriteFile(filename, content) {
+  if (!GH.owner || !GH.repo || !GH.token) {
+    showToast("請先按「🔑 GitHub 設定」輸入帳號資料", "error", 4000); return Promise.resolve(false);
   }
-
-  fetch(location.href)
-    .then(r=>r.text())
-    .then(src=>doExport(src))
-    .catch(()=>doExport('<!DOCTYPE html>'+document.documentElement.outerHTML));
+  const url = "https://api.github.com/repos/" + GH.owner + "/" + GH.repo + "/contents/" + GH.dataPath + "/" + filename;
+  return ghGetFileSHA(filename).then(sha => {
+    const body = { message: "更新 " + filename + " via 子彈運送系統", content: btoa(unescape(encodeURIComponent(content))) };
+    if (sha) body.sha = sha;
+    return fetch(url, { method: "PUT", headers: { "Authorization": "token " + GH.token, "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      .then(res => res.ok);
+  });
+}
+function saveJsonToGitHub() {
+  if (!GH.owner || !GH.repo || !GH.token) { showToast("請先按「🔑 GitHub 設定」輸入帳號資料", "error", 4000); return; }
+  showToast("正在同步所有資料至 GitHub…", "success", 2000);
+  Promise.all([
+    ghWriteFile("routes.json",   JSON.stringify(ROUTES, null, 2)),
+    ghWriteFile("licences.json", JSON.stringify(CENTRE_LICENCES, null, 2))
+  ]).then(results => {
+    if (results[0] && results[1]) showToast("✅ 所有資料已同步至 GitHub！重新整理後所有使用者可看到最新資料。", "success", 6000);
+    else showToast("❌ 同步失敗，請檢查 Token 及 Repository 設定", "error", 5000);
+  });
+}
+function loadDataFromGH() {
+  const base = "https://raw.githubusercontent.com/" + GH.owner + "/" + GH.repo + "/main/" + GH.dataPath;
+  const buster = "?t=" + Date.now();
+  Promise.all([
+    fetch(base + "/routes.json"   + buster).then(r => r.json()),
+    fetch(base + "/licences.json" + buster).then(r => r.json())
+  ]).then(results => {
+    ROUTES = results[0];
+    Object.assign(CENTRE_LICENCES, results[1]);
+    renderCentresTable(); buildDB(); renderStops();
+    showToast("✅ 資料庫已從 GitHub 載入最新版本", "success", 3000);
+  }).catch(e => {
+    showToast("⚠️ 無法從 GitHub 載入：" + e.message, "error", 5000);
+  });
 }
 
 // ============================================================
@@ -1141,7 +1263,7 @@ function exportReminder() {
     return Math.ceil((exp-today)/(1000*60*60*24)) <= 30;
   });
   if(items.length===0){ showToast('目前沒有30日內到期或已過期的牌照','warn'); return; }
-  let msg = `釘炮儲存牌照到期提醒\n${'='.repeat(40)}\n`;
+  let msg = `子彈儲存牌照到期提醒\n${'='.repeat(40)}\n`;
   items.forEach(c=>{
     const status = getLicenceStatus(c.expiry);
     msg += `\n${c.name}\n`;
@@ -1189,7 +1311,7 @@ function saveRoute(id) {
   if(row) row.cells[3].innerHTML = `
     <button class="btn-copy-small" onclick="copyRoute('${id}')">複製</button>
     <button class="btn-copy-small" style="background:#e8f0f8;color:#1a3a5c;border:1px solid #1a3a5c;margin-left:3px" onclick="editRoute('${id}')">✏️</button>`;
-  showToast(`${id} 路線已更新 — 請記得匯出更新版本，改名為 index.html 後上載至 GitHub 覆蓋原有檔案`, 'success', 5000);
+  showToast(id + " 路線已更新 — 按「☁️ 同步至 GitHub」儲存至雲端", "success", 5000);
 }
 
 function cancelRouteEdit(id) {
@@ -1226,5 +1348,34 @@ function showToast(msg, type="success", duration=2500) {
   setTimeout(()=>t.classList.remove("show"), duration);
 }
 </script>
+
+<!-- GITHUB SETTINGS MODAL -->
+<div id="gh-panel" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:12px;padding:28px 30px;width:430px;max-width:95vw;box-shadow:0 8px 40px rgba(0,0,0,.25)">
+    <h2 style="font-size:16px;color:#1a3a5c;margin-bottom:18px;border-bottom:2px solid #1a3a5c;padding-bottom:8px">🔑 GitHub 資料庫設定</h2>
+    <div style="background:#fff8e1;border:1px solid #f5c518;border-radius:6px;padding:10px 14px;font-size:11.5px;color:#7a5200;margin-bottom:16px;line-height:1.7">
+      <strong>設定說明：</strong><br>
+      1. <strong>用戶名</strong>：你的 GitHub 帳號<br>
+      2. <strong>Repository</strong>：例如 <code>cartridge-planner</code><br>
+      3. <strong>Token</strong>：GitHub → Settings → Developer settings → Fine-grained tokens，權限選 <strong>Contents: Read and Write</strong><br>
+      4. <strong>資料目錄</strong>：預設 <code>data</code>（存放 routes.json 及 licences.json）<br>
+      <span style="color:#c0392b;font-weight:700">⚠️ Token 只存於本機 sessionStorage，關閉分頁後自動清除。</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div><label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:3px">GitHub 用戶名（Owner）</label>
+        <input id="gh-owner" type="text" placeholder="例：ck-dispatch" style="width:100%;padding:7px 10px;border:1px solid #c8d0da;border-radius:5px;font-size:13px"></div>
+      <div><label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:3px">Repository 名稱</label>
+        <input id="gh-repo" type="text" placeholder="例：cartridge-planner" style="width:100%;padding:7px 10px;border:1px solid #c8d0da;border-radius:5px;font-size:13px"></div>
+      <div><label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:3px">Personal Access Token</label>
+        <input id="gh-token" type="password" placeholder="github_pat_xxxx 或 ghp_xxxx" style="width:100%;padding:7px 10px;border:1px solid #c8d0da;border-radius:5px;font-size:13px;font-family:monospace"></div>
+      <div><label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:3px">資料目錄路徑（預設 data）</label>
+        <input id="gh-path" type="text" placeholder="data" style="width:100%;padding:7px 10px;border:1px solid #c8d0da;border-radius:5px;font-size:13px"></div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
+      <button onclick="closeGHPanel()" style="padding:8px 18px;border-radius:6px;border:1px solid #ccc;background:#f5f5f5;cursor:pointer;font-size:13px">取消</button>
+      <button onclick="saveGHSettings()" style="padding:8px 22px;border-radius:6px;border:none;background:#27ae60;color:#fff;cursor:pointer;font-size:13px;font-weight:700">✅ 連接並載入</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
