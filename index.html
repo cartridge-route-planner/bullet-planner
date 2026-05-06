@@ -195,6 +195,9 @@
       </div>
     </div>
 
+    <!-- Permit extra info: now per-leg in result box -->
+
+
     <!-- Vehicle Tabs -->
     <div>
       <div class="vehicle-tabs" id="vehicle-tabs">
@@ -204,7 +207,12 @@
     </div>
 
     <!-- Stops -->
-    <div class="stops-container" id="stops-container"><div class="stop-row" draggable="false" data-idx="0"><div class="stop-index origin">起</div><select class="stop-select" disabled=""><option>青衣物料運作中心</option></select><div style="width:64px"></div></div><div class="stop-row" draggable="true" data-idx="1"><div class="stop-index ">S1</div><select class="stop-select" onchange="updateStop(1,'centre',this.value)"><option value="">— 選擇運作中心 —</option><option value="荃灣運作中心">荃灣運作中心</option><option value="百周年運作中心">百周年運作中心</option><option value="慈雲山運作中心">慈雲山運作中心</option><option value="黃大仙運作中心">黃大仙運作中心</option><option value="油塘運作中心">油塘運作中心</option><option value="屯門運作中心">屯門運作中心</option><option value="元朗運作中心">元朗運作中心</option><option value="沙田運作中心">沙田運作中心</option><option value="上水運作中心">上水運作中心</option><option value="大嶼山運作中心">大嶼山運作中心</option></select><input type="number" class="stop-qty" min="0" step="20" value="0" onchange="updateStop(1,'qty',+this.value)" title="子彈數量"><div class="stop-qty-label">枚</div><span class="stop-drag">☰</span><span class="stop-delete" onclick="deleteStop(1)">×</span></div></div>
+    <div class="stops-container" id="stops-container"><div class="stop-row" draggable="false" data-idx="0"><div class="stop-index origin">起</div><select class="stop-select" disabled=""><option>青衣物料運作中心</option></select><div style="width:150px"></div></div><div class="stop-row" draggable="true" data-idx="1"><div class="stop-index ">S1</div><select class="stop-select" onchange="updateStop(1,'centre',this.value)"><option value="">— 選擇運作中心 —</option><option value="荃灣運作中心">荃灣運作中心</option><option value="百周年運作中心">百周年運作中心</option><option value="慈雲山運作中心">慈雲山運作中心</option><option value="黃大仙運作中心">黃大仙運作中心</option><option value="油塘運作中心">油塘運作中心</option><option value="屯門運作中心">屯門運作中心</option><option value="元朗運作中心">元朗運作中心</option><option value="沙田運作中心">沙田運作中心</option><option value="上水運作中心">上水運作中心</option><option value="大嶼山運作中心">大嶼山運作中心</option></select><select class="stop-type" onchange="updateStop(1,'type',this.value)" style="margin-right:4px;padding:3px 4px;border:1px solid #c8d0da;border-radius:4px;font-size:11px">
+           <option value="">— 選擇子彈顏色 —</option>
+           <option value="綠彈 (431735)">綠彈 (431735)</option>
+           <option value="紅彈 (431736)">紅彈 (431736)</option>
+         </select>
+         <input type="number" class="stop-qty" min="0" step="25" value="0" onchange="updateStop(1,'qty',+this.value)" title="子彈數量"><div class="stop-qty-label">枚</div><span class="stop-drag">☰</span><span class="stop-delete" onclick="deleteStop(1)">×</span></div></div>
     <div style="padding:0 14px">
       <button class="btn-add-stop" onclick="addStop()">＋ 新增中途站</button>
       <div class="total-bar">
@@ -216,7 +224,7 @@
     <!-- Action Buttons -->
     <div class="action-row">
       <button class="btn btn-primary" onclick="generateRoute()">🔍 建立路線</button>
-      <button class="btn btn-success" onclick="printPlan()">🖨 列印 A4</button>
+      <button class="btn btn-success" onclick="printPlan()">📄 建立 WORD 檔案</button>
       <button class="btn btn-info" onclick="openGoogleMaps()">🗺 Google 地圖</button>
       <button class="btn btn-outline" onclick="clearAll()">🗑 清除</button>
     </div>
@@ -234,6 +242,26 @@
       <button class="btn btn-outline" style="font-size:11px;padding:3px 10px;margin-top:3px" onclick="copyGmapsLink()">複製連結</button>
       <div class="gmaps-note">⚠️ 此連結僅供參考位置，實際行駛路線以礦務部批出許可證所列街道名稱為準。</div>
     </div>
+    <!-- Final fields (confirmed last minute) -->
+    <div class="panel-section" id="final-fields-section" style="display:none;margin-top:8px;border-top:2px dashed #1a3a5c;padding-top:8px">
+      <div style="font-size:11px;color:#1a3a5c;font-weight:700;margin-bottom:6px">📋 確認資料（最後填寫）</div>
+      <div class="date-plate-row" style="margin-bottom:4px">
+        <div>
+          <label>📅 實際運送日期</label>
+          <input type="date" id="actual-delivery-date">
+        </div>
+        <div>
+          <label>🪪 運送車牌號碼</label>
+          <input type="text" id="actual-plate" placeholder="例：RH1234" oninput="this.value=this.value.toUpperCase()">
+        </div>
+      </div>
+      <div class="date-plate-row">
+        <div>
+          <label>👷 運送司機</label>
+          <input type="text" id="transport-driver" placeholder="例：Chan Tai Man">
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- RIGHT PANEL -->
@@ -245,7 +273,7 @@
     </div>
 
     <!-- Tab: Route DB -->
-    <div id="tab-db" style="display: block;">
+    <div id="tab-db">
       <div class="db-header" style="display:flex;justify-content:space-between;align-items:center">
         <span>路線模板資料庫（R001–R067，共 67 條）</span>
         <button class="btn btn-success" style="font-size:11px;padding:4px 10px" onclick="exportUpdatedHTML()">💾 匯出更新版本</button>
@@ -1095,7 +1123,7 @@
     </div>
 
     <!-- Tab: Operation Centres -->
-    <div id="tab-centres" style="display: none;">
+    <div id="tab-centres" style="display:none">
       <div class="db-header" style="display:flex;justify-content:space-between;align-items:center">
         <span>運作中心牌照及聯絡資料</span>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -1107,162 +1135,12 @@
       <div style="background:#fff8e1;border:1px solid #f5c518;border-radius:6px;padding:8px 12px;margin:8px 0;font-size:11.5px;color:#7a5200;line-height:1.6">
         <strong>⚠️ 重要提示：</strong>修改牌照資料後，按頂部「💾 匯出更新版本」下載最新版本，再將檔案上傳到 <a href="https://github.com" target="_blank" style="color:#1a3a5c;font-weight:700;text-decoration:underline">GitHub</a> 同步。<br>
       </div>
-      <div id="centres-table-container"><div style="font-size: 11px; font-weight: 700; color: rgb(136, 136, 136); letter-spacing: 1px; padding: 10px 4px 4px; text-transform: uppercase; border-top-width: medium; border-top-style: none; border-top-color: currentcolor; margin-top: 0px;">── 九龍／荃灣 ──</div><div class="centre-card">
-      <div class="centre-card-header">
-        <span>荃灣運作中心</span>
-        <span class="licence-status status-ok">🟢 有效（179 天後到期）</span>
-      </div>
-      <div class="centre-card-body" id="card-body-TW">
-        
-    <div class="centre-field"><label>儲存牌照號碼</label><span style="font-size:13px;font-family:monospace;font-weight:700;color:#1a3a5c;padding-top:2px">B002640</span></div>
-    <div class="centre-field"><label>牌照有效期至</label><span style="font-size:13px;padding-top:2px">2026-10-31</span></div>
-    <div class="centre-field"><label>聯絡人</label><span style="font-size:13px;padding-top:2px">Ng Lok Ming | LN15426</span></div>
-    <div class="centre-field"><label>聯絡電話</label><span style="font-size:13px;padding-top:2px">2678 9444</span></div>
-    <div class="centre-field"><label>備註</label><span style="font-size:13px;padding-top:2px;color:#666">—</span></div>
-    <div style="text-align:right;margin-top:6px">
-      <button class="btn-edit-save btn-edit" onclick="editCentre('TW')">✏️ 編輯</button>
-    </div>
-      </div></div><div style="font-size: 11px; font-weight: 700; color: rgb(136, 136, 136); letter-spacing: 1px; padding: 10px 4px 4px; text-transform: uppercase; border-top: 1px solid rgb(224, 230, 238); margin-top: 8px;">── 九龍 ──</div><div class="centre-card">
-      <div class="centre-card-header">
-        <span>百周年運作中心</span>
-        <span class="licence-status status-ok">🟢 有效（199 天後到期）</span>
-      </div>
-      <div class="centre-card-body" id="card-body-CEN">
-        
-    <div class="centre-field"><label>儲存牌照號碼</label><span style="font-size:13px;font-family:monospace;font-weight:700;color:#1a3a5c;padding-top:2px">B002643</span></div>
-    <div class="centre-field"><label>牌照有效期至</label><span style="font-size:13px;padding-top:2px">2026-11-20</span></div>
-    <div class="centre-field"><label>聯絡人</label><span style="font-size:13px;padding-top:2px">Cheung Ka Chun | KC19158</span></div>
-    <div class="centre-field"><label>聯絡電話</label><span style="font-size:13px;padding-top:2px">2678 3617</span></div>
-    <div class="centre-field"><label>備註</label><span style="font-size:13px;padding-top:2px;color:#666">—</span></div>
-    <div style="text-align:right;margin-top:6px">
-      <button class="btn-edit-save btn-edit" onclick="editCentre('CEN')">✏️ 編輯</button>
-    </div>
-      </div></div><div class="centre-card">
-      <div class="centre-card-header">
-        <span>慈雲山運作中心</span>
-        <span class="licence-status status-ok">🟢 有效（31 天後到期）</span>
-      </div>
-      <div class="centre-card-body" id="card-body-TWS">
-        
-    <div class="centre-field"><label>儲存牌照號碼</label><span style="font-size:13px;font-family:monospace;font-weight:700;color:#1a3a5c;padding-top:2px">B002610</span></div>
-    <div class="centre-field"><label>牌照有效期至</label><span style="font-size:13px;padding-top:2px">2026-06-05</span></div>
-    <div class="centre-field"><label>聯絡人</label><span style="font-size:13px;padding-top:2px">Kong Siu Wah | SK11926 ; Li Hing Keung | HL21589</span></div>
-    <div class="centre-field"><label>聯絡電話</label><span style="font-size:13px;padding-top:2px">2678 1467</span></div>
-    <div class="centre-field"><label>備註</label><span style="font-size:13px;padding-top:2px;color:#666">—</span></div>
-    <div style="text-align:right;margin-top:6px">
-      <button class="btn-edit-save btn-edit" onclick="editCentre('TWS')">✏️ 編輯</button>
-    </div>
-      </div></div><div class="centre-card">
-      <div class="centre-card-header">
-        <span>黃大仙運作中心</span>
-        <span class="licence-status status-ok">🟢 有效（254 天後到期）</span>
-      </div>
-      <div class="centre-card-body" id="card-body-WTS">
-        
-    <div class="centre-field"><label>儲存牌照號碼</label><span style="font-size:13px;font-family:monospace;font-weight:700;color:#1a3a5c;padding-top:2px">B002674</span></div>
-    <div class="centre-field"><label>牌照有效期至</label><span style="font-size:13px;padding-top:2px">2027-01-14</span></div>
-    <div class="centre-field"><label>聯絡人</label><span style="font-size:13px;padding-top:2px">Wong Siu Wing | SW05131</span></div>
-    <div class="centre-field"><label>聯絡電話</label><span style="font-size:13px;padding-top:2px">2678 9601</span></div>
-    <div class="centre-field"><label>備註</label><span style="font-size:13px;padding-top:2px;color:#666">—</span></div>
-    <div style="text-align:right;margin-top:6px">
-      <button class="btn-edit-save btn-edit" onclick="editCentre('WTS')">✏️ 編輯</button>
-    </div>
-      </div></div><div class="centre-card">
-      <div class="centre-card-header">
-        <span>油塘運作中心</span>
-        <span class="licence-status status-ok">🟢 有效（354 天後到期）</span>
-      </div>
-      <div class="centre-card-body" id="card-body-YT">
-        
-    <div class="centre-field"><label>儲存牌照號碼</label><span style="font-size:13px;font-family:monospace;font-weight:700;color:#1a3a5c;padding-top:2px">B002698</span></div>
-    <div class="centre-field"><label>牌照有效期至</label><span style="font-size:13px;padding-top:2px">2027-04-24</span></div>
-    <div class="centre-field"><label>聯絡人</label><span style="font-size:13px;padding-top:2px">洪國榮 | KW03143 ; Leung Yiu Chung | YL12483</span></div>
-    <div class="centre-field"><label>聯絡電話</label><span style="font-size:13px;padding-top:2px">2678 0140</span></div>
-    <div class="centre-field"><label>備註</label><span style="font-size:13px;padding-top:2px;color:#666">—</span></div>
-    <div style="text-align:right;margin-top:6px">
-      <button class="btn-edit-save btn-edit" onclick="editCentre('YT')">✏️ 編輯</button>
-    </div>
-      </div></div><div style="font-size: 11px; font-weight: 700; color: rgb(136, 136, 136); letter-spacing: 1px; padding: 10px 4px 4px; text-transform: uppercase; border-top: 1px solid rgb(224, 230, 238); margin-top: 8px;">── 新界 ──</div><div class="centre-card">
-      <div class="centre-card-header">
-        <span>屯門運作中心</span>
-        <span class="licence-status status-ok">🟢 有效（200 天後到期）</span>
-      </div>
-      <div class="centre-card-body" id="card-body-TM">
-        
-    <div class="centre-field"><label>儲存牌照號碼</label><span style="font-size:13px;font-family:monospace;font-weight:700;color:#1a3a5c;padding-top:2px">B002648</span></div>
-    <div class="centre-field"><label>牌照有效期至</label><span style="font-size:13px;padding-top:2px">2026-11-21</span></div>
-    <div class="centre-field"><label>聯絡人</label><span style="font-size:13px;padding-top:2px">梁炳權 | PK05420</span></div>
-    <div class="centre-field"><label>聯絡電話</label><span style="font-size:13px;padding-top:2px">2678 3232</span></div>
-    <div class="centre-field"><label>備註</label><span style="font-size:13px;padding-top:2px;color:#666">—</span></div>
-    <div style="text-align:right;margin-top:6px">
-      <button class="btn-edit-save btn-edit" onclick="editCentre('TM')">✏️ 編輯</button>
-    </div>
-      </div></div><div class="centre-card">
-      <div class="centre-card-header">
-        <span>元朗運作中心</span>
-        <span class="licence-status status-ok">🟢 有效（200 天後到期）</span>
-      </div>
-      <div class="centre-card-body" id="card-body-YL">
-        
-    <div class="centre-field"><label>儲存牌照號碼</label><span style="font-size:13px;font-family:monospace;font-weight:700;color:#1a3a5c;padding-top:2px">B002650</span></div>
-    <div class="centre-field"><label>牌照有效期至</label><span style="font-size:13px;padding-top:2px">2026-11-21</span></div>
-    <div class="centre-field"><label>聯絡人</label><span style="font-size:13px;padding-top:2px">Chau Yun Wa | YC04051 ; Chan Siu Ki | SC05078</span></div>
-    <div class="centre-field"><label>聯絡電話</label><span style="font-size:13px;padding-top:2px">2678 3428 / 2678 3469</span></div>
-    <div class="centre-field"><label>備註</label><span style="font-size:13px;padding-top:2px;color:#666">—</span></div>
-    <div style="text-align:right;margin-top:6px">
-      <button class="btn-edit-save btn-edit" onclick="editCentre('YL')">✏️ 編輯</button>
-    </div>
-      </div></div><div class="centre-card">
-      <div class="centre-card-header">
-        <span>沙田運作中心</span>
-        <span class="licence-status status-ok">🟢 有效（203 天後到期）</span>
-      </div>
-      <div class="centre-card-body" id="card-body-ST">
-        
-    <div class="centre-field"><label>儲存牌照號碼</label><span style="font-size:13px;font-family:monospace;font-weight:700;color:#1a3a5c;padding-top:2px">B002647</span></div>
-    <div class="centre-field"><label>牌照有效期至</label><span style="font-size:13px;padding-top:2px">2026-11-24</span></div>
-    <div class="centre-field"><label>聯絡人</label><span style="font-size:13px;padding-top:2px">洪錦恩 | KH05148</span></div>
-    <div class="centre-field"><label>聯絡電話</label><span style="font-size:13px;padding-top:2px">2678 3059</span></div>
-    <div class="centre-field"><label>備註</label><span style="font-size:13px;padding-top:2px;color:#666">—</span></div>
-    <div style="text-align:right;margin-top:6px">
-      <button class="btn-edit-save btn-edit" onclick="editCentre('ST')">✏️ 編輯</button>
-    </div>
-      </div></div><div class="centre-card">
-      <div class="centre-card-header">
-        <span>上水運作中心</span>
-        <span class="licence-status status-ok">🟢 有效（222 天後到期）</span>
-      </div>
-      <div class="centre-card-body" id="card-body-SS">
-        
-    <div class="centre-field"><label>儲存牌照號碼</label><span style="font-size:13px;font-family:monospace;font-weight:700;color:#1a3a5c;padding-top:2px">B002670</span></div>
-    <div class="centre-field"><label>牌照有效期至</label><span style="font-size:13px;padding-top:2px">2026-12-13</span></div>
-    <div class="centre-field"><label>聯絡人</label><span style="font-size:13px;padding-top:2px">張貴如 | KY04454 ; Chan Kim Ping | KP04407</span></div>
-    <div class="centre-field"><label>聯絡電話</label><span style="font-size:13px;padding-top:2px">2678 2159</span></div>
-    <div class="centre-field"><label>備註</label><span style="font-size:13px;padding-top:2px;color:#666">—</span></div>
-    <div style="text-align:right;margin-top:6px">
-      <button class="btn-edit-save btn-edit" onclick="editCentre('SS')">✏️ 編輯</button>
-    </div>
-      </div></div><div style="font-size: 11px; font-weight: 700; color: rgb(136, 136, 136); letter-spacing: 1px; padding: 10px 4px 4px; text-transform: uppercase; border-top: 1px solid rgb(224, 230, 238); margin-top: 8px;">── 大嶼山 ──</div><div class="centre-card">
-      <div class="centre-card-header">
-        <span>大嶼山運作中心</span>
-        <span class="licence-status status-ok">🟢 有效（203 天後到期）</span>
-      </div>
-      <div class="centre-card-body" id="card-body-LT">
-        
-    <div class="centre-field"><label>儲存牌照號碼</label><span style="font-size:13px;font-family:monospace;font-weight:700;color:#1a3a5c;padding-top:2px">B002644</span></div>
-    <div class="centre-field"><label>牌照有效期至</label><span style="font-size:13px;padding-top:2px">2026-11-24</span></div>
-    <div class="centre-field"><label>聯絡人</label><span style="font-size:13px;padding-top:2px">Wong Chung Yee | CY04741</span></div>
-    <div class="centre-field"><label>聯絡電話</label><span style="font-size:13px;padding-top:2px">2678 0236 / 9266 4712</span></div>
-    <div class="centre-field"><label>備註</label><span style="font-size:13px;padding-top:2px;color:#666">—</span></div>
-    <div style="text-align:right;margin-top:6px">
-      <button class="btn-edit-save btn-edit" onclick="editCentre('LT')">✏️ 編輯</button>
-    </div>
-      </div></div></div>
+      <div id="centres-table-container"></div>
     </div>
   </div>
 </div>
 
-<div class="toast success" id="toast">大嶼山運作中心 牌照資料已更新 — 按「💾 匯出更新版本」儲存</div>
+<div class="toast" id="toast"></div>
 <div id="print-area" style="display:none"></div>
 
 <script>
@@ -1696,8 +1574,9 @@ let ROUTES = [
 // ============================================================
 // STATE
 // ============================================================
-let vehicles = [{ plate:"", stops:[{centre:"青衣物料運作中心", qty:0},{centre:"",qty:0}] }];
+let vehicles = [{ plate:"", stops:[{centre:"青衣物料運作中心", type:"", qty:0},{centre:"", type:"", qty:0}] }];
 let currentVehicle = 0;
+let permitData = {}; // permitData[legNum] = {appNo, appDt, tpNo, tpDt}
 
 // ============================================================
 // INIT
@@ -1790,8 +1669,13 @@ function renderStops() {
       selectHtml = `<select class="stop-select" onchange="updateStop(${idx},'centre',this.value)">`
         + `<option value="">— 選擇運作中心 —</option>` + opts + `</select>`;
     }
-    const qtyHtml = idx===0 ? `<div style="width:64px"></div>`
-      : `<input type="number" class="stop-qty" min="0" step="20" value="${stop.qty||0}" onchange="updateStop(${idx},'qty',+this.value)" title="子彈數量"><div class="stop-qty-label">枚</div>`;
+    const qtyHtml = idx===0 ? `<div style="width:150px"></div>`
+      : `<select class="stop-type" onchange="updateStop(${idx},'type',this.value)" style="margin-right:4px;padding:3px 4px;border:1px solid #c8d0da;border-radius:4px;font-size:11px">
+           <option value="">— 選擇子彈顏色 —</option>
+           <option value="綠彈 (431735)" ${stop.type==="綠彈 (431735)"?"selected":""}>綠彈 (431735)</option>
+           <option value="紅彈 (431736)" ${stop.type==="紅彈 (431736)"?"selected":""}>紅彈 (431736)</option>
+         </select>
+         <input type="number" class="stop-qty" min="0" step="25" value="${stop.qty||0}" onchange="updateStop(${idx},'qty',+this.value)" title="子彈數量"><div class="stop-qty-label">枚</div>`;
     const dragHandle = idx===0 ? "" : `<span class="stop-drag">☰</span>`;
     const delBtn = idx===0 ? "" : `<span class="stop-delete" onclick="deleteStop(${idx})">×</span>`;
     row.innerHTML = indexDiv + selectHtml + qtyHtml + dragHandle + delBtn;
@@ -1806,7 +1690,7 @@ function updateStop(idx, field, val) {
 }
 
 function addStop() {
-  vehicles[currentVehicle].stops.push({centre:"", qty:0});
+  vehicles[currentVehicle].stops.push({centre:"", type:"", qty:0});
   renderStops();
 }
 
@@ -1909,6 +1793,9 @@ function generateRoute() {
   showValidation([...errors,...warnings]);
   if(noTemplate.length>0 || emptyStops.length>0 || destStops.length===0) return;
 
+  // Reset permit data store for this run
+  permitData = {};
+
   // ── Build overall (actual driving) route ──
   const overallDeduped = dedupeStreets(legs.map(l=>l.route.streets));
 
@@ -1958,6 +1845,32 @@ function generateRoute() {
         <button class="copy-btn" onclick="copyText('permit-${p.num}')">複製</button>
       </div>
       <div class="result-content" id="permit-${p.num}" style="max-height:100px">${p.deduped.join(">")}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;padding:6px 0 2px;border-top:1px dashed #c5d5e8">
+        <div>
+          <label style="font-size:10px;color:#555;font-weight:600;display:block;margin-bottom:2px">📄 許可證申請號</label>
+          <input type="text" id="leg-app-no-${p.num}" placeholder="Mines/XXX/2026"
+            style="width:100%;padding:4px 7px;border:1px solid #c8d0da;border-radius:4px;font-size:11px"
+            oninput="if(!permitData[${p.num}])permitData[${p.num}]={};permitData[${p.num}].appNo=this.value">
+        </div>
+        <div>
+          <label style="font-size:10px;color:#555;font-weight:600;display:block;margin-bottom:2px">📅 申請日期</label>
+          <input type="date" id="leg-app-date-${p.num}"
+            style="width:100%;padding:4px 7px;border:1px solid #c8d0da;border-radius:4px;font-size:11px"
+            onchange="if(!permitData[${p.num}])permitData[${p.num}]={};permitData[${p.num}].appDt=this.value">
+        </div>
+        <div>
+          <label style="font-size:10px;color:#555;font-weight:600;display:block;margin-bottom:2px">📄 運送許可證號碼</label>
+          <input type="text" id="leg-tp-no-${p.num}" placeholder="TP/XXX/2026"
+            style="width:100%;padding:4px 7px;border:1px solid #c8d0da;border-radius:4px;font-size:11px"
+            oninput="if(!permitData[${p.num}])permitData[${p.num}]={};permitData[${p.num}].tpNo=this.value">
+        </div>
+        <div>
+          <label style="font-size:10px;color:#555;font-weight:600;display:block;margin-bottom:2px">📅 運送許可證日期</label>
+          <input type="date" id="leg-tp-date-${p.num}"
+            style="width:100%;padding:4px 7px;border:1px solid #c8d0da;border-radius:4px;font-size:11px"
+            onchange="if(!permitData[${p.num}])permitData[${p.num}]={};permitData[${p.num}].tpDt=this.value">
+        </div>
+      </div>
     </div>`;
   });
   html += `</div>`;
@@ -1991,6 +1904,10 @@ function generateRoute() {
   </div>`;
 
   resultBox.innerHTML = html;
+
+  // Show final confirmation fields
+  const ffs = document.getElementById('final-fields-section');
+  if(ffs) ffs.style.display = '';
 
   // Google Maps link
   buildGmapsLink(stops.filter(s=>s.centre));
@@ -2076,27 +1993,52 @@ function formatDate(d) {
 // ============================================================
 // PRINT
 // ============================================================
+
+function _hl(val) {
+  return val === '待確認'
+    ? '<span style="background:#fff3cd;color:#856404;font-weight:700;padding:1px 4px;border-radius:3px">待確認</span>'
+    : val;
+}
 function printPlan() {
   const plannedDates = getPlannedDates();
   const date = plannedDates.length ? plannedDates.map(formatDate).join("、") : "（未設定）";
+  const actualDate = (document.getElementById('actual-delivery-date') || {}).value || '待確認';
+  const actualPlate = (document.getElementById('actual-plate') || {}).value || '待確認';
+  const driver = (document.getElementById('transport-driver') || {}).value || '待確認';
+
   const printStyles = `<style>
-    body{font-family:"Microsoft JhengHei",Arial,sans-serif;margin:0;padding:0;font-size:13px;color:#111}
-    h2{font-size:16px;border-bottom:2px solid #1a3a5c;padding-bottom:6px;margin-bottom:12px;color:#1a3a5c}
-    h3{font-size:14px;color:#1a3a5c;margin:14px 0 6px;border-left:4px solid #1a3a5c;padding-left:8px}
+    @page{size:A4 portrait;margin:8mm 8mm 8mm 8mm}
+    body{font-family:"Microsoft JhengHei",Arial,sans-serif;margin:0;padding:6px 8px;font-size:14px;color:#111}
+    h2{font-size:18px;border-bottom:2px solid #1a3a5c;padding-bottom:6px;margin-bottom:12px;color:#1a3a5c}
+    h3{font-size:15px;color:#1a3a5c;margin:14px 0 6px;border-left:4px solid #1a3a5c;padding-left:8px}
     table{width:100%;border-collapse:collapse;margin-bottom:10px}
-    th{background:#1a3a5c;color:#fff;padding:6px 8px;font-size:12px;text-align:left}
-    td{padding:5px 8px;border:1px solid #ccc;font-size:12px}
+    th{background:#1a3a5c;color:#fff;padding:6px 8px;font-size:13px;text-align:left}
+    td{padding:5px 8px;border:1px solid #ccc;font-size:13px}
     .street-box{background:#f5f7fa;border:1px solid #aaa;border-radius:4px;padding:8px 10px;
-      font-family:monospace;font-size:11px;line-height:1.8;word-break:break-all;margin:6px 0;white-space:pre-wrap}
+      font-family:monospace;font-size:12px;line-height:1.8;word-break:break-all;margin:6px 0;white-space:pre-wrap}
     .vehicle-block{margin-bottom:20px;page-break-inside:avoid}
-    .notice{font-size:10px;color:#c0392b;margin-top:4px;font-style:italic}
-    @page{size:A4 portrait;margin:15mm}
-  
-    @media print { @page { size: A4 portrait; margin: 15mm; } }
-  </style>`;
+  </style>`
+;
+
   let html = "";
   html += `<h2>📦 子彈運送計劃書</h2>`;
-  html += `<div style="font-size:12px;margin-bottom:14px">計劃運送日期：<strong>${date}</strong> ｜ 車輛數目：<strong>${vehicles.length}</strong> 輛</div>`;
+  html += `<div style="font-size:12px;margin-bottom:10px">計劃運送日期：<strong>${date}</strong></div>`;
+
+  html += `<table style="width:100%;border-collapse:collapse;margin-bottom:10px;table-layout:fixed">
+    <colgroup>
+      <col style="width:22%"><col style="width:28%"><col style="width:22%"><col style="width:28%">
+    </colgroup>
+    <tr>
+      <th style="padding:5px 7px;border:1px solid #dde;background:#1a3a5c;color:#fff;text-align:left;font-size:11px">實際運送日期</th>
+      <td style="padding:5px 7px;border:1px solid #dde;font-size:11px">${_hl(actualDate)}</td>
+      <th style="padding:5px 7px;border:1px solid #dde;background:#1a3a5c;color:#fff;text-align:left;font-size:11px">運送車牌號碼</th>
+      <td style="padding:5px 7px;border:1px solid #dde;font-size:11px">${_hl(actualPlate)}</td>
+    </tr>
+    <tr>
+      <th style="padding:5px 7px;border:1px solid #dde;background:#1a3a5c;color:#fff;text-align:left;font-size:11px">運送司機</th>
+      <td colspan="3" style="padding:5px 7px;border:1px solid #dde;font-size:11px">${_hl(driver)}</td>
+    </tr>
+  </table>`;
 
   vehicles.forEach((v, vi) => {
     const plate = v.plate || `車輛 ${vi+1}`;
@@ -2113,20 +2055,20 @@ function printPlan() {
 
     html += `<div class="vehicle-block">`;
     html += `<h3>🚛 ${plate}</h3>`;
-    html += `<table><tr><th>#</th><th>運作中心</th><th>子彈數量</th></tr>`;
+    html += `<table><tr><th>#</th><th>運作中心</th><th>子彈顏色</th><th>子彈數量</th></tr>`;
     validStops.forEach((s,si)=>{
-      if(si===0) html+=`<tr><td>起點</td><td>${s.centre}</td><td>—</td></tr>`;
-      else html+=`<tr><td>${si}</td><td>${s.centre}</td><td>${s.qty||0} 枚</td></tr>`;
+      if(si===0) html+=`<tr><td>起點</td><td>${s.centre}</td><td>—</td><td>—</td></tr>`;
+      else html+=`<tr><td>${si}</td><td>${s.centre}</td><td>${s.type||'—'}</td><td>${s.qty||0} 枚</td></tr>`;
     });
-    html+=`<tr style="background:#f0f4f8"><td colspan="2"><strong>合計</strong></td><td><strong>${total} 枚</strong></td></tr>`;
+    html+=`<tr style="background:#f0f4f8"><td colspan="3"><strong>合計</strong></td><td><strong>${total} 枚</strong></td></tr>`;
     html+=`</table>`;
-    // Overall route
+
     html+=`<div><strong>實際行車路線（整體）：</strong></div>`;
     if(noTemplate.length>0) html+=`<div class="notice">⚠️ 部分路段無模板：${noTemplate.join("、")}</div>`;
     html+=`<div class="street-box">${deduped.join(">")}</div>`;
 
-    // Per-permit breakdown
-    if(validStops.length > 2) {
+    // Always build per-leg permit tables (regardless of stop count)
+    {
       html+=`<div style="margin-top:10px"><strong>📄 許可證路線（逐目的地分拆）</strong></div>`;
       const printLegs=[];
       for(let i=0;i<validStops.length-1;i++){
@@ -2135,19 +2077,43 @@ function printPlan() {
         if(r2) printLegs.push({from:fr,to:t,route:r2,qty:validStops[i+1].qty||0});
       }
       printLegs.forEach((leg,idx)=>{
+        const legNum = idx+1;
+        const _pd    = permitData[legNum] || {};
+        const legAppNo = _pd.appNo || '待確認';
+        const legAppDt = _pd.appDt || '待確認';
+        const legTpNo  = _pd.tpNo  || '待確認';
+        const legTpDt  = _pd.tpDt  || '待確認';
+        const ids=printLegs.slice(0,idx+1).map(l=>l.route.id).join(" + ");
+        html+=`<div style="margin:6px 0"><strong style="font-size:13px">許可證 ${legNum}：青衣物料運作中心 → ${leg.to}（${ids}）</strong></div>`;
+        html+=`<table style="width:100%;border-collapse:collapse;margin-bottom:10px;table-layout:fixed">
+          <colgroup>
+            <col style="width:22%"><col style="width:28%"><col style="width:22%"><col style="width:28%">
+          </colgroup>
+          <tr>
+            <th style="padding:5px 7px;border:1px solid #dde;background:#1a3a5c;color:#fff;text-align:left;font-size:12px">許可證申請號</th>
+            <td style="padding:5px 7px;border:1px solid #dde;font-size:12px">${_hl(legAppNo)}</td>
+            <th style="padding:5px 7px;border:1px solid #dde;background:#1a3a5c;color:#fff;text-align:left;font-size:12px">申請日期</th>
+            <td style="padding:5px 7px;border:1px solid #dde;font-size:12px">${_hl(legAppDt)}</td>
+          </tr>
+          <tr>
+            <th style="padding:5px 7px;border:1px solid #dde;background:#1a3a5c;color:#fff;text-align:left;font-size:12px">運送許可證號碼</th>
+            <td style="padding:5px 7px;border:1px solid #dde;font-size:12px">${_hl(legTpNo)}</td>
+            <th style="padding:5px 7px;border:1px solid #dde;background:#1a3a5c;color:#fff;text-align:left;font-size:12px">運送許可證日期</th>
+            <td style="padding:5px 7px;border:1px solid #dde;font-size:12px">${_hl(legTpDt)}</td>
+          </tr>
+        </table>`;
+        // Street route (cumulative deduped)
         const cumulStreets=printLegs.slice(0,idx+1).map(l=>l.route.streets);
         const dd=[cumulStreets.join(">").split(">")[0]];
         const all=cumulStreets.join(">").split(">");
         for(let k=1;k<all.length;k++) if(all[k]!==all[k-1]) dd.push(all[k]);
-        const ids=printLegs.slice(0,idx+1).map(l=>l.route.id).join(" + ");
-        html+=`<div style="margin:6px 0"><strong style="font-size:11px">許可證 ${idx+1}：青衣物料運作中心 → ${leg.to}（${ids}）</strong></div>`;
-        html+=`<div class="street-box" style="font-size:10.5px">${dd.join(">")}</div>`;
+        html+=`<div class="street-box" style="font-size:12px">${dd.join(">")} </div>`;
       });
     }
 
-    html+=`<div class="notice">⚠️ 實際行駛路線嚴格依照礦務部批出許可證所列街道名稱，不得偏離，不得使用任何公路隧道（GN3）。</div>`;
 
-    // Licence info table for involved centres
+    
+
     const involvedCentres = validStops.slice(1).map(s=>s.centre).filter(Boolean);
     const licRows = involvedCentres.map(name=>{
       const lic = CENTRE_LICENCES.find(x=>x.name===name);
@@ -2157,7 +2123,7 @@ function printPlan() {
                       st.cls==='status-warn'?`<span style="color:#d4860a;font-weight:700">${st.label}</span>`:
                       lic.expiry?`<span style="color:#27ae60">${st.label}</span>`:'—';
       return `<tr>
-        <td style="font-weight:600">${name}</td>
+        <td style="font-weight:600;white-space:nowrap">${name}</td>
         <td style="font-family:monospace;font-weight:700">${lic.licence||'—'}</td>
         <td>${lic.expiry||'—'}<br><small>${stLabel}</small></td>
         <td>${lic.contact||'—'}</td>
@@ -2169,7 +2135,15 @@ function printPlan() {
     if(involvedCentres.length>0) {
       html+=`<div style="margin-top:14px;border-top:2px solid #1a3a5c;padding-top:8px">
         <strong style="font-size:11px;color:#1a3a5c">🪪 涉及運作中心儲存牌照資料</strong>
-        <table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:6px">
+        <table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:6px;table-layout:fixed">
+          <colgroup>
+            <col style="width:23%">
+            <col style="width:14%">
+            <col style="width:15%">
+            <col style="width:16%">
+            <col style="width:14%">
+            <col style="width:18%">
+          </colgroup>
           <thead>
             <tr style="background:#1a3a5c;color:#fff">
               <th style="padding:5px 7px;border:1px solid #dde;text-align:left">運作中心</th>
@@ -2189,15 +2163,24 @@ function printPlan() {
     html+=`</div>`;
   });
 
-  const pw = window.open("","_blank","width=900,height=700");
-  if(!pw) { showToast("瀏覽器封鎖彈出視窗，請允許後再試","error"); return; }
-  pw.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>子彈運送計劃書</title>${printStyles}</head><body>${html}
-<!-- GITHUB SETTINGS MODAL -->
-
-</body></html>`);
-  pw.document.write(`<script>window.onload=function(){window.print()}<\/script>`);
-  pw.document.close();
+  const header = '<html xmlns:o="urn:schemas-microsoft-com:office:office" '+
+                 'xmlns:w="urn:schemas-microsoft-com:office:word" '+
+                 'xmlns="http://www.w3.org/TR/REC-html40">'+
+                 '<head><meta charset="UTF-8"><title>子彈運送計劃書</title>' + printStyles + '</head><body>';
+  const footer = '</body></html>';
+  const sourceHTML = header + html + footer;
+  const blob = new Blob(['﻿', sourceHTML], { type: 'application/msword;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const _today = new Date(); const _ds = _today.getFullYear() + ('0'+((_today.getMonth()+1))).slice(-2) + ('0'+_today.getDate()).slice(-2);
+  a.download = '子彈運送計劃書_' + _ds + '.doc';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  showToast('✅ 已建立 Word 檔案，可以在 Word 內再作編輯。', 'success', 5000);
 }
+
 
 // ============================================================
 // ROUTE DATABASE
@@ -2289,8 +2272,7 @@ let CENTRE_LICENCES = [
     "expiry": "2026-10-31",
     "contact": "Ng Lok Ming | LN15426",
     "phone": "2678 9444",
-    "remark": "",
-    "region": "九龍／荃灣"
+    "remark": ""
   },
   {
     "id": "CEN",
@@ -2299,8 +2281,7 @@ let CENTRE_LICENCES = [
     "expiry": "2026-11-20",
     "contact": "Cheung Ka Chun | KC19158",
     "phone": "2678 3617",
-    "remark": "",
-    "region": "九龍"
+    "remark": ""
   },
   {
     "id": "TWS",
@@ -2309,8 +2290,7 @@ let CENTRE_LICENCES = [
     "expiry": "2026-06-05",
     "contact": "Kong Siu Wah | SK11926 ; Li Hing Keung | HL21589",
     "phone": "2678 1467",
-    "remark": "",
-    "region": "九龍"
+    "remark": ""
   },
   {
     "id": "WTS",
@@ -2319,8 +2299,7 @@ let CENTRE_LICENCES = [
     "expiry": "2027-01-14",
     "contact": "Wong Siu Wing | SW05131",
     "phone": "2678 9601",
-    "remark": "",
-    "region": "九龍"
+    "remark": ""
   },
   {
     "id": "YT",
@@ -2329,8 +2308,7 @@ let CENTRE_LICENCES = [
     "expiry": "2027-04-24",
     "contact": "洪國榮 | KW03143 ; Leung Yiu Chung | YL12483",
     "phone": "2678 0140",
-    "remark": "",
-    "region": "九龍"
+    "remark": ""
   },
   {
     "id": "TM",
@@ -2339,8 +2317,7 @@ let CENTRE_LICENCES = [
     "expiry": "2026-11-21",
     "contact": "梁炳權 | PK05420",
     "phone": "2678 3232",
-    "remark": "",
-    "region": "新界"
+    "remark": ""
   },
   {
     "id": "YL",
@@ -2349,8 +2326,7 @@ let CENTRE_LICENCES = [
     "expiry": "2026-11-21",
     "contact": "Chau Yun Wa | YC04051 ; Chan Siu Ki | SC05078",
     "phone": "2678 3428 / 2678 3469",
-    "remark": "",
-    "region": "新界"
+    "remark": ""
   },
   {
     "id": "ST",
@@ -2359,8 +2335,7 @@ let CENTRE_LICENCES = [
     "expiry": "2026-11-24",
     "contact": "洪錦恩 | KH05148",
     "phone": "2678 3059",
-    "remark": "",
-    "region": "新界"
+    "remark": ""
   },
   {
     "id": "SS",
@@ -2369,8 +2344,7 @@ let CENTRE_LICENCES = [
     "expiry": "2026-12-13",
     "contact": "張貴如 | KY04454 ; Chan Kim Ping | KP04407",
     "phone": "2678 2159",
-    "remark": "",
-    "region": "新界"
+    "remark": ""
   },
   {
     "id": "LT",
@@ -2379,8 +2353,7 @@ let CENTRE_LICENCES = [
     "expiry": "2026-11-24",
     "contact": "Wong Chung Yee | CY04741",
     "phone": "2678 0236 / 9266 4712",
-    "remark": "",
-    "region": "大嶼山"
+    "remark": ""
   }
 ];
 
