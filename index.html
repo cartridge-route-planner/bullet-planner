@@ -168,6 +168,7 @@
     <span style="font-size:36px;line-height:1">📦</span>
     <div>
       <div style="font-size:22px;font-weight:800;letter-spacing:1.5px;line-height:1.2">子彈運送路線規劃系統</div>
+      <div id="last-modified-label" style="font-size:12px;color:#a8c4d8;margin-top:3px;letter-spacing:0.5px">最後修改日期：<span id="last-modified-date">2026-05-06</span></div>
     </div>
   </div>
   <div style="text-align:right">
@@ -2486,12 +2487,27 @@ function exportUpdatedHTML() {
   }
   src = patchArray(src, 'ROUTES',          rj);
   src = patchArray(src, 'CENTRE_LICENCES', lj);
+
+  // Stamp last-modified date
+  const _now = new Date();
+  const _dateStr = _now.getFullYear() + '-' +
+    ('0'+(_now.getMonth()+1)).slice(-2) + '-' +
+    ('0'+_now.getDate()).slice(-2);
+  // Update live display
+  const _lmd = document.getElementById('last-modified-date');
+  if(_lmd) _lmd.textContent = _dateStr;
+  // Patch into exported HTML
+  src = src.replace(
+    /(<span id="last-modified-date">)[^<]*/,
+    '$1' + _dateStr
+  );
+
   const blob = new Blob([src], { type: 'text/html;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = '子彈運送路線規劃系統.html';
   a.click();
-  showToast('✅ 已匯出最新版本！請將檔案上傳到 GitHub 同步。', 'success', 5000);
+  showToast('✅ 已匯出最新版本！最後修改日期已更新為 ' + _dateStr, 'success', 5000);
 }
 
 // ============================================================
